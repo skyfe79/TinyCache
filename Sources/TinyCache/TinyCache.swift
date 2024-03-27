@@ -70,7 +70,7 @@ public class TinyCache<Key, Value> where Key: Hashable {
   /// - Parameters:
   ///   - value: The value to store in the cache.
   ///   - key: The key with which to associate the value.
-  func set(value: Value, forKey key: Key) {
+  public func set(value: Value, forKey key: Key) {
     let (cacheKey, cacheValue) = cacheKeyValue(key, value)
     cache.setObject(cacheValue, forKey: cacheKey)
   }
@@ -81,7 +81,7 @@ public class TinyCache<Key, Value> where Key: Hashable {
   ///   - value: The value to store in the cache.
   ///   - key: The key with which to associate the value.
   ///   - cost: The cost with which to associate the value.
-  func set(value: Value, forKey key: Key, cost: Int) {
+  public func set(value: Value, forKey key: Key, cost: Int) {
     let (cacheKey, cacheValue) = cacheKeyValue(key, value)
     cache.setObject(cacheValue, forKey: cacheKey, cost: cost)
   }
@@ -90,7 +90,7 @@ public class TinyCache<Key, Value> where Key: Hashable {
   ///
   /// - Parameter key: The key for which to return the corresponding value.
   /// - Returns: The value associated with `key`, or `nil` if no value is associated with `key`.
-  func value(forKey key: Key) -> Value? {
+  public func value(forKey key: Key) -> Value? {
     let cacheKey = CacheKey(key)
     let cacheValue = cache.object(forKey: cacheKey)
     return cacheValue?.value
