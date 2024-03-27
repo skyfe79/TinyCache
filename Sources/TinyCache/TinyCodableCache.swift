@@ -89,7 +89,7 @@ public final class TinyCodableCache {
   /// - Returns: An optional codable object retrieved from the cache.
   public func load<T: Codable>(forKey key: String) async -> T? {
     return await withCheckedContinuation { continuation in
-      load<T>(forKey: key) { thing in 
+      load(forKey: key) { thing in 
         continuation.resume(returning: thing)
       }
     }
