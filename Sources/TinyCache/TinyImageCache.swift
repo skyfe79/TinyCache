@@ -55,7 +55,7 @@ public final class TinyImageCache {
   private func handleCacheWillEvictValue(_ key: String, _ value: PlatformImage) {
     if let data = imageToData(image: value) {
       Task { [weak self] in
-        await self?.diskCache.save(data: data, forKey: key)
+        await self?.diskCache.set(data: data, forKey: key)
       }
     }
   }
@@ -65,7 +65,7 @@ public final class TinyImageCache {
   /// - Parameters:
   ///   - image: The image to cache.
   ///   - key: The key to associate with the image.
-  public func save(image: PlatformImage, forKey key: String) {
+  public func set(image: PlatformImage, forKey key: String) {
     memoryCache.set(value: image, forKey: key)
   }
 
@@ -74,9 +74,9 @@ public final class TinyImageCache {
   /// - Parameters:
   ///   - image: The image to cache.
   ///   - url: The URL to associate with the image.
-  public func save(image: PlatformImage, forKey url: URL) {
+  public func set(image: PlatformImage, forKey url: URL) {
     let urlString = url.absoluteString
-    save(image: image, forKey: urlString)
+    set(image: image, forKey: urlString)
   }
 
   /// Retrieves an image from the cache for the specified key, executing a completion handler upon retrieval.

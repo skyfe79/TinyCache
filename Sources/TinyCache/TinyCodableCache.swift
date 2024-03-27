@@ -47,7 +47,7 @@ public final class TinyCodableCache {
   /// Handles the cache eviction process for codable objects.
   private func handleCacheWillEvictValue(_ key: String, _ value: Data) {
     Task { [weak self] in
-      await self?.diskCache.save(data: value, forKey: key)
+      await self?.diskCache.set(data: value, forKey: key)
     }
   }
 
@@ -56,7 +56,7 @@ public final class TinyCodableCache {
   /// - Parameters:
   ///   - value: The codable object to cache.
   ///   - key: The key to associate with the object.
-  public func save(value: any Codable, forKey key: String) {
+  public func set(codable value: any Codable, forKey key: String) {
     if let data = encode(value) {
       memoryCache.set(value: data, forKey: key)
     }

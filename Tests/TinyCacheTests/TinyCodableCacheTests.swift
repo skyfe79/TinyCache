@@ -23,7 +23,7 @@ final class TinyCodableCacheTests: XCTestCase {
   }
 
   func testSaveAndLoadCodableObjectForKey() async {
-    codableCache.save(value: testObject, forKey: testKey)
+    codableCache.set(codable: testObject, forKey: testKey)
     if let loadedObject: TestObject? = await codableCache.load(forKey: testKey) {
       XCTAssertEqual(loadedObject, testObject, "Loaded object should match the saved object")
     } else {
@@ -32,14 +32,14 @@ final class TinyCodableCacheTests: XCTestCase {
   }
 
   func testDeleteCodableObjectForKey() async {
-    codableCache.save(value: testObject, forKey: testKey)
+    codableCache.set(codable: testObject, forKey: testKey)
     await codableCache.delete(forKey: testKey)
     let loadedObject: TestObject? = await codableCache.load(forKey: testKey)
     XCTAssertNil(loadedObject, "Object should be nil after deletion")
   }
 
   func testClearCache() async {
-    codableCache.save(value: testObject, forKey: testKey)
+    codableCache.set(codable: testObject, forKey: testKey)
     await codableCache.deleteAll()
     let loadedObject: TestObject? = await codableCache.load(forKey: testKey)
     XCTAssertNil(loadedObject, "Object should be nil after clearing cache")
@@ -47,7 +47,7 @@ final class TinyCodableCacheTests: XCTestCase {
 
   func testSaveNilCodableObjectForKey() async {
     let nilObject: TestObject? = nil
-    codableCache.save(value: nilObject, forKey: testKey)
+    codableCache.set(codable: nilObject, forKey: testKey)
     let loadedObject: TestObject? = await codableCache.load(forKey: testKey)
     XCTAssertNil(loadedObject, "Nil object should not be saved or loaded from cache")
   }
@@ -59,7 +59,7 @@ final class TinyCodableCacheTests: XCTestCase {
 
   func testSaveAndLoadEmptyStringForKey() async {
     let emptyString = ""
-    codableCache.save(value: emptyString, forKey: testKey)
+    codableCache.set(codable: emptyString, forKey: testKey)
     if let loadedString: String? = await codableCache.load(forKey: testKey) {
       XCTAssertEqual(loadedString, emptyString, "Loaded string should match the saved empty string")
     } else {
@@ -69,8 +69,8 @@ final class TinyCodableCacheTests: XCTestCase {
 
   func testSaveAndOverrideExistingObjectForKey() async {
     let newObject = TestObject(id: 2, name: "New Test Object")
-    codableCache.save(value: testObject, forKey: testKey)
-    codableCache.save(value: newObject, forKey: testKey)
+    codableCache.set(codable: testObject, forKey: testKey)
+    codableCache.set(codable: newObject, forKey: testKey)
     if let loadedObject: TestObject? = await codableCache.load(forKey: testKey) {
       XCTAssertEqual(loadedObject, newObject, "Loaded object should match the last saved object")
     } else {
@@ -80,7 +80,7 @@ final class TinyCodableCacheTests: XCTestCase {
 
   func testSaveAndLoadIntForKey() async {
     let testInt = 42
-    codableCache.save(value: testInt, forKey: testKey)
+    codableCache.set(codable: testInt, forKey: testKey)
     if let loadedInt: Int? = await codableCache.load(forKey: testKey) {
       XCTAssertEqual(loadedInt, testInt, "Loaded Int should match the saved Int")
     } else {
@@ -90,7 +90,7 @@ final class TinyCodableCacheTests: XCTestCase {
 
   func testSaveAndLoadBoolForKey() async {
     let testBool = true
-    codableCache.save(value: testBool, forKey: testKey)
+    codableCache.set(codable: testBool, forKey: testKey)
     if let loadedBool: Bool? = await codableCache.load(forKey: testKey) {
       XCTAssertEqual(loadedBool, testBool, "Loaded Bool should match the saved Bool")
     } else {
@@ -100,7 +100,7 @@ final class TinyCodableCacheTests: XCTestCase {
 
   func testSaveAndLoadDoubleForKey() async {
     let testDouble = 3.14
-    codableCache.save(value: testDouble, forKey: testKey)
+    codableCache.set(codable: testDouble, forKey: testKey)
     if let loadedDouble: Double? = await codableCache.load(forKey: testKey) {
       XCTAssertEqual(loadedDouble, testDouble, "Loaded Double should match the saved Double")
     } else {
@@ -110,7 +110,7 @@ final class TinyCodableCacheTests: XCTestCase {
 
   func testSaveAndLoadStringArrayForKey() async {
     let testStringArray = ["apple", "banana", "cherry"]
-    codableCache.save(value: testStringArray, forKey: testKey)
+    codableCache.set(codable: testStringArray, forKey: testKey)
     if let loadedStringArray: [String]? = await codableCache.load(forKey: testKey) {
       XCTAssertEqual(loadedStringArray, testStringArray, "Loaded String array should match the saved String array")
     } else {
@@ -120,7 +120,7 @@ final class TinyCodableCacheTests: XCTestCase {
 
   func testSaveAndLoadDictionaryForKey() async {
     let testDictionary = ["key1": "value1", "key2": "value2"]
-    codableCache.save(value: testDictionary, forKey: testKey)
+    codableCache.set(codable: testDictionary, forKey: testKey)
     if let loadedDictionary: [String: String]? = await codableCache.load(forKey: testKey) {
       XCTAssertEqual(loadedDictionary, testDictionary, "Loaded Dictionary should match the saved Dictionary")
     } else {
@@ -135,7 +135,7 @@ final class TinyCodableCacheTests: XCTestCase {
     }
 
     let testEnum = TestEnum.case1
-    codableCache.save(value: testEnum, forKey: testKey)
+    codableCache.set(codable: testEnum, forKey: testKey)
     if let loadedEnum: TestEnum? = await codableCache.load(forKey: testKey) {
       XCTAssertEqual(loadedEnum, testEnum, "Loaded Enum should match the saved Enum")
     } else {

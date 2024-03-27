@@ -18,7 +18,7 @@ final class TinyDiskCacheTests: XCTestCase {
     }
 
     func testSaveAndLoadData() async {
-        await diskCache.save(data: testData, forKey: testKey)
+        await diskCache.set(data: testData, forKey: testKey)
         let loadedData = await diskCache.load(forKey: testKey)
         XCTAssertNotNil(loadedData, "Loaded data should not be nil")
         XCTAssertEqual(loadedData, testData, "Loaded data should match saved data")
@@ -27,14 +27,14 @@ final class TinyDiskCacheTests: XCTestCase {
     }
 
     func testDeleteData() async {
-        await diskCache.save(data: testData, forKey: testKey)
+        await diskCache.set(data: testData, forKey: testKey)
         await diskCache.delete(forKey: testKey)
         let loadedData = await diskCache.load(forKey: testKey)
         XCTAssertNil(loadedData, "Data should be nil after deletion")
     }
 
     func testDeleteAllData() async {
-        await diskCache.save(data: testData, forKey: testKey)
+        await diskCache.set(data: testData, forKey: testKey)
         await diskCache.deleteAll()
         let loadedData = await diskCache.load(forKey: testKey)
         XCTAssertNil(loadedData, "All data should be deleted")
@@ -44,7 +44,7 @@ final class TinyDiskCacheTests: XCTestCase {
         for i in 0..<20 { // Double the limit count to test enforcement
             let key = "Key\(i)"
             let data = "Data\(i)".data(using: .utf8)!
-            await diskCache.save(data: data, forKey: key)
+            await diskCache.set(data: data, forKey: key)
         }
         await diskCache.checkAndEnforceCountLimit()
         let files = (try? await diskCache.getFilesSortedByCreationDate(in: diskCache.getCacheDirectoryUrl()!)) ?? []
@@ -53,14 +53,14 @@ final class TinyDiskCacheTests: XCTestCase {
 
     func testSaveDataWithEmptyKey() async {
         let emptyKey = ""
-        await diskCache.save(data: testData, forKey: emptyKey)
+        await diskCache.set(data: testData, forKey: emptyKey)
         let loadedData = await diskCache.load(forKey: emptyKey)
         XCTAssertNil(loadedData, "Data should be nil for empty key")
     }
 
     func testSaveDataWithSpecialCharactersKey() async {
         let specialKey = "!@#$%^&*()"
-        await diskCache.save(data: testData, forKey: specialKey)
+        await diskCache.set(data: testData, forKey: specialKey)
         let loadedData = await diskCache.load(forKey: specialKey)
         XCTAssertNotNil(loadedData, "Data should not be nil for special characters key")
         XCTAssertEqual(loadedData, testData, "Loaded data should match saved data for special characters key")

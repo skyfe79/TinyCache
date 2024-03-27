@@ -40,7 +40,7 @@ public actor TinyDiskCache {
   /// - Parameters:
   ///   - data: The data to save to the cache.
   ///   - key: The key to associate with the data.
-  public func save(data: Data, forKey key: String) {
+  public func set(data: Data, forKey key: String) {
     guard let url = cacheFilePathUrl(forKey: key) else { return }
     try? data.write(to: url)
   }
