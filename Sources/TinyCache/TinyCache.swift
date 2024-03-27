@@ -1,4 +1,5 @@
 import Foundation
+import Dispatch
 
 /// A policy for configuring the behavior of a `TinyCache` instance.
 ///
@@ -20,9 +21,9 @@ public struct TinyCachePolicy {
 /// A generic cache class that stores objects of any type, with eviction based on `TinyCachePolicy`.
 ///
 /// This class provides a simple caching mechanism that can store any type of object. It uses `NSCache` internally for storage.
-/// The cache supports setting and getting values by key, as well as removing values individually or clearing the entire cache.
 public class TinyCache<Key, Value> where Key: Hashable {
   /// An instance of `NSCache` used for storing cached objects. The cache keys and values are wrapped in `CacheKey` and `CacheValue` types to ensure type safety.
+  // NSCache is thread-safe, so we don't need to use locks to protect against concurrent access.
   private var cache: NSCache<CacheKey<Key>, CacheValue<Key, Value>>
   /// An instance of `NSCacheDelegator` used to handle cache eviction notifications. This allows for custom actions to be performed when an object is evicted from the cache.
   private var nsCacheDelegator: NSCacheDelegator
@@ -32,6 +33,24 @@ public class TinyCache<Key, Value> where Key: Hashable {
   ///   - key: The key associated with the value being evicted.
   ///   - value: The value that is being evicted.
   public var cacheWillEvictValue: ((_ key: Key, _ value: Value) -> Void)?
+
+  /// A semaphore used to synchronize access to the `shouldEvictValueWhenDiscarded` property.
+  private var lock = DispatchSemaphore(value: 1)
+
+  /// A property that determines whether the cache should automatically evict values when their content is discarded.
+  ///
+  /// Accessing this property returns a Boolean value indicating whether automatic eviction is enabled. Setting this property allows you to enable or disable automatic eviction.
+  private var _shouldEvictValueWhenDiscarded: Bool = true
+  public var shouldEvictValueWhenDiscarded: Bool {
+    get {
+      _shouldEvictValueWhenDiscarded
+    }
+    set {
+      lock.wait()
+      _shouldEvictValueWhenDiscarded = newValue
+      lock.signal()
+    }
+  }
 
   /// Initializes a new cache with the specified policy.
   ///
@@ -97,7 +116,7 @@ public class TinyCache<Key, Value> where Key: Hashable {
   ///
   /// - Parameter obj: The object that is about to be evicted from the cache.
   private func nsCacheWillEvictObject(_ obj: Any) {
-    if let value = obj as? CacheValue<Key, Value> {
+    if shouldEvictValueWhenDiscarded, let value = obj as? CacheValue<Key, Value> {
       cacheWillEvictValue?(value.key, value.value)
     }
   }

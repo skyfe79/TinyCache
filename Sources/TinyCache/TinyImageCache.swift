@@ -26,14 +26,14 @@ public struct TinyImageCachePolicy {
       totalCostLimit: TinyCachePolicy.default.totalCostLimit
     ),
     diskCachePolicy: TinyDiskCachePolicy(
-      cacheFolderName: TinyDiskCachePolicy.default.cacheFolderName,
+      cacheFolderName: "tiny_image_cache",
       countLimit: TinyDiskCachePolicy.default.countLimit
     )
   )
 }
 
 /// A class responsible for caching images, supporting both memory and disk caching mechanisms.
-public class TinyImageCache {
+public final class TinyImageCache {
   /// A shared instance of `TinyImageCache` for global use.
   public static let shared = TinyImageCache()
   /// The disk cache component of the image cache.
@@ -47,11 +47,15 @@ public class TinyImageCache {
   public init(policy: TinyImageCachePolicy = .default) {
     diskCache = TinyDiskCache(policy: policy.diskCachePolicy)
     memoryCache = TinyCache(policy: policy.memoryCachePolicy)
-    memoryCache.cacheWillEvictValue = { [weak self] key, value in
-      if let data = self?.imageToData(image: value) {
-        Task { [weak self] in
-          await self?.diskCache.save(data: data, forKey: key)
-        }
+    memoryCache.shouldEvictValueWhenDiscarded = true
+    memoryCache.cacheWillEvictValue = handleCacheWillEvictValue
+  }
+
+  /// Handles the cache eviction process for images.
+  private func handleCacheWillEvictValue(_ key: String, _ value: PlatformImage) {
+    if let data = imageToData(image: value) {
+      Task { [weak self] in
+        await self?.diskCache.save(data: data, forKey: key)
       }
     }
   }
@@ -72,7 +76,7 @@ public class TinyImageCache {
   ///   - url: The URL to associate with the image.
   public func save(image: PlatformImage, forKey url: URL) {
     let urlString = url.absoluteString
-    self.save(image: image, forKey: urlString)
+    save(image: image, forKey: urlString)
   }
 
   /// Retrieves an image from the cache for the specified key, executing a completion handler upon retrieval.
@@ -103,7 +107,7 @@ public class TinyImageCache {
   ///   - completion: A completion handler that is executed with the retrieved image, or `nil` if not found.
   public func image(forKey url: URL, completion: @escaping (PlatformImage?) -> Void) {
     let urlString = url.absoluteString
-    self.image(forKey: urlString, completion: completion)
+    image(forKey: urlString, completion: completion)
   }
 
   /// Asynchronously retrieves an image from the cache for the specified key.
@@ -112,7 +116,7 @@ public class TinyImageCache {
   /// - Returns: An optional `PlatformImage` retrieved from the cache.
   public func image(forKey key: String) async -> PlatformImage? {
     return await withCheckedContinuation { continuation in
-      self.image(forKey: key) { image in 
+      self.image(forKey: key) { image in
         continuation.resume(returning: image)
       }
     }
@@ -124,20 +128,26 @@ public class TinyImageCache {
   /// - Returns: An optional `PlatformImage` retrieved from the cache.
   public func image(forKey url: URL) async -> PlatformImage? {
     let urlString = url.absoluteString
-    return await self.image(forKey: urlString)
+    return await image(forKey: urlString)
   }
 
-  /// Asynchronously deletes the image associated with the specified key from both the memory and disk caches.
+  /// Asynchronously deletes the image associated with the specified key from both the memory and disk caches. 
+  /// The eviction handler is not used when the user explicitly deletes.
   ///
   /// - Parameter key: The key for the image to delete.
   public func delete(forKey key: String) async {
-    memoryCache[key] = nil
+    memoryCache.shouldEvictValueWhenDiscarded = false
+    memoryCache.removeValue(forKey: key)
+    memoryCache.shouldEvictValueWhenDiscarded = true
     await diskCache.delete(forKey: key)
   }
 
   /// Asynchronously clears all images from both the memory and disk caches.
+  /// The eviction handler is not used when the user explicitly deletes.
   public func deleteAll() async {
+    memoryCache.shouldEvictValueWhenDiscarded = false
     memoryCache.clear()
+    memoryCache.shouldEvictValueWhenDiscarded = true
     await diskCache.deleteAll()
   }
 
