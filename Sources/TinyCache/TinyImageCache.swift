@@ -127,11 +127,15 @@ public class TinyImageCache {
     return await self.image(forKey: urlString)
   }
 
+  /// Asynchronously deletes the image associated with the specified key from both the memory and disk caches.
+  ///
+  /// - Parameter key: The key for the image to delete.
   public func delete(forKey key: String) async {
     memoryCache[key] = nil
     await diskCache.delete(forKey: key)
   }
 
+  /// Asynchronously clears all images from both the memory and disk caches.
   public func deleteAll() async {
     memoryCache.clear()
     await diskCache.deleteAll()

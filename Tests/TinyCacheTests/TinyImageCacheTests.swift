@@ -64,4 +64,19 @@ final class TinyImageCacheTests: XCTestCase {
         let loadedImage = await imageCache.image(forKey: testKey)
         XCTAssertNil(loadedImage, "Image should be nil after clearing cache")
     }
+
+    func testDownloadAndCacheImage() async {
+        do {
+            let imageData = try await downloadData(from: testURL)
+            guard let image = PlatformImage(data: imageData) else {
+                XCTFail("Failed to create image from downloaded data")
+                return
+            }
+            imageCache.save(image: image, forKey: testURL)
+            let loadedImage = await imageCache.image(forKey: testURL)
+            XCTAssertNotNil(loadedImage, "Loaded image should not be nil after downloading and caching")
+        } catch {
+            XCTFail("Downloading or caching image failed with error: \(error)")
+        }
+    }
 }

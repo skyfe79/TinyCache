@@ -123,7 +123,9 @@ public class TinyCache<Key, Value> where Key: Hashable {
   ///
   /// - Parameter key: The key to associate the value with.
   public subscript(key: Key) -> Value? {
-    get { value(forKey: key) }
+    get { 
+      value(forKey: key) 
+    }
     set(newValue) {
       if let newValue = newValue {
         set(value: newValue, forKey: key)
