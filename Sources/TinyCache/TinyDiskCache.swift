@@ -12,7 +12,7 @@ public enum TinyDiskCacheError: Error {
 public struct TinyDiskCachePolicy {
   /// The name of the folder to use for the disk cache.
   public let cacheFolderName: String
-  /// The maximum number of items that the disk cache can hold.
+  /// The maximum number of items that the disk cache can hold. if 0, there is no limit.
   public let countLimit: Int
 
   /// The default policy for the disk cache.

@@ -8,9 +8,9 @@ import Dispatch
 public struct TinyCachePolicy {
   /// A name for the cache, useful for debugging.
   public let name: String
-  /// The maximum number of objects the cache should hold.
+  /// The maximum number of objects the cache should hold. if 0, there is no limit.
   public let countLimit: Int
-  /// The maximum total cost that the cache can hold before it starts evicting objects.
+  /// The maximum total cost that the cache can hold before it starts evicting objects. if 0, there is no limit.
   public let totalCostLimit: Int
   
 

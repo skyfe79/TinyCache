@@ -5,7 +5,9 @@ TinyCache is a simple and lightweight caching solution for Swift apps.
 ## Installation
 
 ### Swift Package Manager
+
 To integrate TinyCache into your project using Swift Package Manager, add it to your `Package.swift` file:
+
 ```swift
 dependencies: [
     .package(url: "https://github.com/skyfe79/TinyCache.git", .upToNextMajor(from: "0.0.1"))
